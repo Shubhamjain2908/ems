@@ -7,6 +7,7 @@ const router = express.Router();
 
 const Auth = require('../controllers/AuthController');
 const Category = require('../controllers/CategoryController');
+const Budget = require('../controllers/BudgetController');
 
 /***********************
   Auth Routes
@@ -29,6 +30,17 @@ router.put('/category/:id', passport.authenticate('jwt', { session: false }), Ca
 router.delete('/category/:id', passport.authenticate('jwt', { session: false }), Category.deleteCategory);
 /***********************
   Category Routes
+***********************/
+
+/***********************
+  Budget Routes
+***********************/
+router.post('/budget', passport.authenticate('jwt', { session: false }), Budget.createBudget);
+router.get('/budget', passport.authenticate('jwt', { session: false }), Budget.getBudget);
+router.put('/budget/:id', passport.authenticate('jwt', { session: false }), Budget.updateBudget);
+router.delete('/budget/:id', passport.authenticate('jwt', { session: false }), Budget.deleteBudget);
+/***********************
+  Budget Routes
 ***********************/
 
 module.exports = router;
