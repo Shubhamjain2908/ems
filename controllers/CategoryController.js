@@ -35,7 +35,12 @@ const createSubCategory = async (req, res) => {
 }
 
 const getCategories = async (req, res) => {
-    let category = await Category.query().eager('[parent, children]');
+    let category = await Category.query().where('parentId', null).eager('[children]');
+    return okResponse(res, category);
+}
+
+const getSubCategories = async (req, res) => {
+    let category = await Category.query().whereNot('parentId', null).eager('[parent]');
     return okResponse(res, category);
 }
 
@@ -90,6 +95,7 @@ module.exports = {
     createCategory,
     createSubCategory,
     getCategories,
+    getSubCategories,
     getCategoryById,
     updateCategory,
     deleteCategory,
