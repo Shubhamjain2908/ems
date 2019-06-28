@@ -3,7 +3,7 @@ const Model = require('objection').Model;
 class Expense extends Model {
 
     static get tableName() {
-        return 'budget';
+        return 'expense';
     }
 
     static get relationMappings() {

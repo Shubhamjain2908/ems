@@ -9,14 +9,14 @@ const createBudget = async (req, res) => {
     }
     let data = {
         budget: body.budget,
-        userId: req.params.id
+        userId: req.user.id
     }
     let insertedBudget = await Budget.query().insertAndFetch(data);
     return createdResponse(res, insertedBudget, 'Budget created successfully!');
 }
 
 const getBudget = async (req, res) => {
-    let budget = await Budget.query().where('userId', req.params.id);
+    let budget = await Budget.query().where('userId', req.user.id);
     return okResponse(res, budget);
 }
 
@@ -25,7 +25,7 @@ const updateBudget = async (req, res) => {
     if (!+id) {
         return badRequestError(res, 'Request Expects an integer id!');
     }
-    let category = await Budget.query().updateAndFetchById(+id, { budget: body.budget });;
+    let category = await Budget.query().updateAndFetchById(+id, { budget: req.body.budget });;
     return okResponse(res, category);
 }
 
