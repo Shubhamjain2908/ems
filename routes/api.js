@@ -6,8 +6,6 @@ const express = require('express');
 const router = express.Router();
 
 const Auth = require('../controllers/AuthController');
-const User = require('../controllers/UserController');
-const Tweet = require('../controllers/TweetController');
 
 
 /***********************
