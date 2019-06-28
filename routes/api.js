@@ -15,7 +15,7 @@ const Expense = require('../controllers/ExpenseController');
 ***********************/
 router.post('/signup', Auth.signUp);
 router.post('/login', Auth.login);
-router.get('/logout', passport.authenticate('jwt', { session: false }), Auth.logout);
+router.delete('/logout', passport.authenticate('jwt', { session: false }), Auth.logout);
 /***********************
   Auth Routes
 ***********************/
