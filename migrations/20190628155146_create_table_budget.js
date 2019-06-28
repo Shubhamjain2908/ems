@@ -4,7 +4,7 @@ exports.up = async (knex, Promise) => {
         await knex.schema
             .createTable('budget', table => {
                 table.increments('id').primary();
-                table.string('budget').notNullable()
+                table.integer('budget').notNullable()
                 table.integer('userId')
                     .references('id')
                     .inTable('user')
