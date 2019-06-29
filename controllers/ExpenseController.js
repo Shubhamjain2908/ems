@@ -74,11 +74,15 @@ const deleteExpense = async (req, res) => {
 
 const dashboard = async (req, res) => {
     const totalBudget = await Budget.query().select('budget').where('userId', req.user.id).first().then(a => {
-        return a.budget;
+        if (a && a.budget) {
+            return a.budget;
+        } else {
+            return 0;
+        }
     });
 
     const usedBudget = await Expense.query().sum('expense').where('userId', req.user.id).first().then(a => {
-        if (a.sum == null) {
+        if (a && a.sum == null) {
             return 0;
         } else {
             return +a.sum;
@@ -89,8 +93,12 @@ const dashboard = async (req, res) => {
         return +a[0].count;
     });
 
-    const budgetUsed_percentage = Math.round((usedBudget / totalBudget) * 100 * 100) / 100;
-    const budgetLeft_percentage = Math.round((100 - budgetUsed_percentage) * 100) / 100;
+    let budgetUsed_percentage = 0;
+    let budgetLeft_percentage = 0;
+    if (totalBudget != 0) {
+        budgetUsed_percentage = Math.round((usedBudget / totalBudget) * 100 * 100) / 100;
+        budgetLeft_percentage = Math.round((100 - budgetUsed_percentage) * 100) / 100;
+    }
 
     let data = {
         totalBudget: totalBudget,
