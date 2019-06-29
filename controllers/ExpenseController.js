@@ -34,9 +34,12 @@ const createExpense = async (req, res) => {
 }
 
 const getExpense = async (req, res) => {
+    let page = (req.query.page) ? req.query.page : 1;
+    let limit = (req.query.limit) ? req.query.limit : 10;
+    let offset = 10 * (page - 1);
     let budget = await Expense.query().where('userId', req.user.id).eager('[category]').modifyEager('category', e => {
         e.eager('[parent]');
-    });
+    }).limit(limit).offset(offset).orderBy('id', 'DESC');
     return okResponse(res, budget);
 }
 
@@ -62,8 +65,8 @@ const deleteExpense = async (req, res) => {
     }
     const exists = await Expense.query().where('id', id).first();
     if (exists) {
-        await exists.$query().delete();
-        return noContentResponse(res);
+        const e = await Expense.query().patchAndFetchById(id, { isDeleted: true });
+        return okResponse(res, e);
     } else {
         return badRequestError(res, 'No Expense exist with this id!');
     }

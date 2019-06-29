@@ -22,12 +22,18 @@ const createCategory = async (req, res) => {
 }
 
 const getCategories = async (req, res) => {
-    let category = await Category.query().where('parentId', null).eager('[children]');
+    let page = (req.query.page) ? req.query.page : 1;
+    let limit = (req.query.limit) ? req.query.limit : 10;
+    let offset = 10 * (page - 1);
+    let category = await Category.query().where('parentId', null).eager('[children]').limit(limit).offset(offset).orderBy('id', 'DESC');
     return okResponse(res, category);
 }
 
 const getSubCategories = async (req, res) => {
-    let category = await Category.query().whereNot('parentId', null).eager('[parent]');
+    let page = (req.query.page) ? req.query.page : 1;
+    let limit = (req.query.limit) ? req.query.limit : 10;
+    let offset = 10 * (page - 1);
+    let category = await Category.query().whereNot('parentId', null).eager('[parent]').limit(limit).offset(offset).orderBy('id', 'DESC');
     return okResponse(res, category);
 }
 
