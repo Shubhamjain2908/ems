@@ -1,6 +1,7 @@
 'use strict';
 
 const Budget = require('../models/budget');
+const Expense = require('../models/expense');
 
 const createBudget = async (req, res) => {
     const body = req.body;
@@ -10,6 +11,17 @@ const createBudget = async (req, res) => {
     }
     let budgetExists = await Budget.query().where('userId', id).first();
     if (budgetExists) {
+        const total = budgetExists.budget;
+        const usedBudget = await Expense.query().sum('expense').where('userId', id).first().then(a => {
+            if (a.sum == null) {
+                return 0;
+            } else {
+                return +a.sum;
+            }
+        });
+        if (body.budget < usedBudget) {
+            return badRequestError(res, 'You have exceeded your limit of purchase! Current balance is : ' + (total) + '.');
+        }
         let updateBudget = await Budget.query().updateAndFetchById(id, { budget: body.budget });
         return createdResponse(res, updateBudget, 'Budget updated successfully!');
     } else {
