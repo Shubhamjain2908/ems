@@ -4,29 +4,27 @@ const Budget = require('../models/budget');
 
 const createBudget = async (req, res) => {
     const body = req.body;
+    const id = +req.user.id;
     if (!body.budget || isNaN(body.budget)) {
         return badRequestError(res, 'Request expects a Budget Value!');
     }
-    let data = {
-        budget: body.budget,
-        userId: req.user.id
+    let budgetExists = await Budget.query().where('userId', id).first();
+    if (budgetExists) {
+        let updateBudget = await Budget.query().updateAndFetchById(id, { budget: body.budget });
+        return createdResponse(res, updateBudget, 'Budget updated successfully!');
+    } else {
+        let data = {
+            budget: body.budget,
+            userId: id
+        }
+        let insertedBudget = await Budget.query().insertAndFetch(data);
+        return createdResponse(res, insertedBudget, 'Budget created successfully!');
     }
-    let insertedBudget = await Budget.query().insertAndFetch(data);
-    return createdResponse(res, insertedBudget, 'Budget created successfully!');
 }
 
 const getBudget = async (req, res) => {
-    let budget = await Budget.query().where('userId', req.user.id);
+    let budget = await Budget.query().where('userId', req.user.id).first();
     return okResponse(res, budget);
-}
-
-const updateBudget = async (req, res) => {
-    let id = req.params.id;
-    if (!+id) {
-        return badRequestError(res, 'Request Expects an integer id!');
-    }
-    let category = await Budget.query().updateAndFetchById(+id, { budget: req.body.budget });;
-    return okResponse(res, category);
 }
 
 const deleteBudget = async (req, res) => {
@@ -46,6 +44,5 @@ const deleteBudget = async (req, res) => {
 module.exports = {
     createBudget,
     getBudget,
-    updateBudget,
     deleteBudget,
 }

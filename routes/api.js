@@ -40,7 +40,6 @@ router.delete('/category/:id', passport.authenticate('jwt', { session: false }),
 ***********************/
 router.post('/budget', passport.authenticate('jwt', { session: false }), Budget.createBudget);
 router.get('/budget', passport.authenticate('jwt', { session: false }), Budget.getBudget);
-router.put('/budget/:id', passport.authenticate('jwt', { session: false }), Budget.updateBudget);
 router.delete('/budget/:id', passport.authenticate('jwt', { session: false }), Budget.deleteBudget);
 /***********************
   Budget Routes

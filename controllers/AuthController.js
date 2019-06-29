@@ -79,7 +79,7 @@ const updateUser = async (req, res) => {
   let body = req.body;
   delete body.email;
   delete body.password;
-  let u = await User.query().updateAndFetchById(+req.user.id, body);
+  let u = await User.query().patchAndFetchById(+req.user.id, body);
   return okResponse(res, u, "Successfully update");
 }
 
