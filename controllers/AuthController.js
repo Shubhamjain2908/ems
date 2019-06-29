@@ -71,8 +71,22 @@ const logout = async (req, res) => {
   return noContentResponse(res);
 }
 
+const getUser = async (req, res) => {
+  return okResponse(res, req.user, "Successfully get");
+}
+
+const updateUser = async (req, res) => {
+  let body = req.body;
+  delete body.email;
+  delete body.password;
+  let u = await User.query().updateAndFetchById(+req.user.id, body);
+  return okResponse(res, u, "Successfully update");
+}
+
 module.exports = {
   signUp,
   login,
-  logout
+  logout,
+  getUser,
+  updateUser
 }
