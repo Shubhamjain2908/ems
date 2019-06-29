@@ -24,7 +24,6 @@ router.delete('/logout', passport.authenticate('jwt', { session: false }), Auth.
   Category Routes
 ***********************/
 router.post('/category', passport.authenticate('jwt', { session: false }), Category.createCategory);
-router.post('/subcategory', passport.authenticate('jwt', { session: false }), Category.createSubCategory);
 router.get('/category', Category.getCategories);
 router.get('/subcategory', Category.getSubCategories);
 router.get('/category/:id', Category.getCategoryById);

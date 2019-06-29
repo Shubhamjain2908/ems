@@ -10,25 +10,12 @@ const createCategory = async (req, res) => {
     let data = {
         name: body.name
     }
-    let insertedCategory = await Category.query().insertAndFetch(data);
-    return createdResponse(res, insertedCategory, 'Category created successfully!');
-}
-
-const createSubCategory = async (req, res) => {
-    const body = req.body;
-    if (!body.name) {
-        return badRequestError(res, 'Request expects a Category Name!');
-    }
-    if (!body.parentId) {
-        return badRequestError(res, 'Request expects a Parent Category Id!');
-    }
-    const categoryExists = await Category.query().where('id', body.parentId).first();
-    if (!categoryExists) {
-        return notFoundError(res, 'No category found with id: ' + body.parentId);
-    }
-    let data = {
-        name: body.name,
-        parentId: body.parentId
+    if (body.parentId) {
+        const categoryExists = await Category.query().where('id', body.parentId).first();
+        if (!categoryExists) {
+            return notFoundError(res, 'No category found with id: ' + body.parentId);
+        }
+        data.parentId = body.parentId;
     }
     let insertedCategory = await Category.query().insertAndFetch(data);
     return createdResponse(res, insertedCategory, 'Category created successfully!');
@@ -93,7 +80,6 @@ const deleteCategory = async (req, res) => {
 
 module.exports = {
     createCategory,
-    createSubCategory,
     getCategories,
     getSubCategories,
     getCategoryById,
