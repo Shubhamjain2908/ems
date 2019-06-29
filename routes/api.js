@@ -54,5 +54,6 @@ router.delete('/expense/:id', passport.authenticate('jwt', { session: false }), 
 /***********************
   Expense Routes
 ***********************/
+router.get('/dashboard', passport.authenticate('jwt', { session: false }), Expense.dashboard);
 
 module.exports = router;

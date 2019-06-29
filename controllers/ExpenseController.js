@@ -47,7 +47,9 @@ const createExpense = async (req, res) => {
 }
 
 const getExpense = async (req, res) => {
-    let budget = await Expense.query().where('userId', req.user.id).eager('[category]');
+    let budget = await Expense.query().where('userId', req.user.id).eager('[category]').modifyEager('category', e => {
+        e.eager('[parent]');
+    });
     return okResponse(res, budget);
 }
 
@@ -74,9 +76,42 @@ const deleteExpense = async (req, res) => {
     }
 }
 
+const dashboard = async (req, res) => {
+    const totalBudget = await Budget.query().select('budget').where('userId', req.user.id).first().then(a => {
+        return a.budget;
+    });
+
+    const usedBudget = await Expense.query().sum('expense').where('userId', req.user.id).first().then(a => {
+        if (a.sum == null) {
+            return 0;
+        } else {
+            return +a.sum;
+        }
+    });
+
+    const totalCategory = await Category.query().count('id').where('parentId', null).then(a => {
+        return +a[0].count;
+    });
+
+    const budgetUsed_percentage = Math.round((usedBudget / totalBudget) * 100 * 100) / 100;
+    const budgetLeft_percentage = 100 - budgetUsed_percentage;
+
+    let data = {
+        totalBudget: totalBudget,
+        usedBudget: usedBudget,
+        budgetLeft: totalBudget - usedBudget,
+        totalCategory: totalCategory,
+        budgetUsed_percentage: budgetUsed_percentage,
+        budgetLeft_percentage: budgetLeft_percentage
+    }
+
+    return okResponse(res, data);
+}
+
 module.exports = {
     createExpense,
     getExpense,
     updateExpense,
     deleteExpense,
+    dashboard
 }
