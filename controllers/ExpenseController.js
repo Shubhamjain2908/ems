@@ -17,23 +17,10 @@ const createExpense = async (req, res) => {
     if (!catExists) {
         return notFoundError(res, 'No category found with this id');
     }
-    const totalBudget = await Budget.query().select('budget').where('userId', req.user.id).first().then(a => {
-        return a.budget;
-    });
 
-    const usedBudget = await Expense.query().sum('expense').where('userId', req.user.id).first().then(a => {
-        if (a.sum == null) {
-            return 0;
-        } else {
-            return a.sum;
-        }
-    });
-    if (!totalBudget) {
-        return badRequestError(res, 'No budget was found of this user');
-    }
-
-    if (totalBudget - usedBudget - expense < 0) {
-        return badRequestError(res, 'You have exceeded your limit of purchase! Available balance is : ' + (totalBudget - usedBudget) + '.');
+    const c = await checkBudget(req.user.id, expense);
+    if (c && c.limit) {
+        return badRequestError(res, 'You have exceeded your limit of purchase! Available balance is : ' + (c.limit) + '.');
     }
 
     let data = {
@@ -54,11 +41,17 @@ const getExpense = async (req, res) => {
 }
 
 const updateExpense = async (req, res) => {
-    let id = req.params.id;
+    let id = req.params.id, body = req.body;
     if (!+id) {
         return badRequestError(res, 'Request Expects an integer id!');
     }
-    let category = await Expense.query().updateAndFetchById(+id, { expense: req.body.expense });;
+    if (body.expense) {
+        const c = await checkBudget(req.user.id, body.expense);
+        if (c && c.limit) {
+            return badRequestError(res, 'You have exceeded your limit of purchase! Available balance is : ' + (c.limit) + '.');
+        }
+    }
+    let category = await Expense.query().updateAndFetchById(+id, body);;
     return okResponse(res, category);
 }
 
@@ -94,7 +87,7 @@ const dashboard = async (req, res) => {
     });
 
     const budgetUsed_percentage = Math.round((usedBudget / totalBudget) * 100 * 100) / 100;
-    const budgetLeft_percentage = 100 - budgetUsed_percentage;
+    const budgetLeft_percentage = Math.round((100 - budgetUsed_percentage) * 100) / 100;
 
     let data = {
         totalBudget: totalBudget,
@@ -106,6 +99,28 @@ const dashboard = async (req, res) => {
     }
 
     return okResponse(res, data);
+}
+
+const checkBudget = async (id, expense) => {
+    const totalBudget = await Budget.query().select('budget').where('userId', id).first().then(a => {
+        return a.budget;
+    });
+
+    const usedBudget = await Expense.query().sum('expense').where('userId', id).first().then(a => {
+        if (a.sum == null) {
+            return 0;
+        } else {
+            return a.sum;
+        }
+    });
+
+    if (totalBudget - usedBudget - expense < 0) {
+        return {
+            limit: totalBudget - usedBudget
+        };
+    } else {
+        return null;
+    }
 }
 
 module.exports = {

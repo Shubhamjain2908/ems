@@ -31,14 +31,14 @@ const getSubCategories = async (req, res) => {
     return okResponse(res, category);
 }
 
-const getCategoryById = async (req, res) => {
-    let id = req.params.id;
+const getCategoryByParentId = async (req, res) => {
+    let id = req.params.categoryId;
     if (!+id) {
         return badRequestError(res, 'Request Expects an integer id!');
     }
-    let category = await Category.query().findById(+id).eager('[parent, children]');
+    let category = await Category.query().where('parentId', +id);
     if (!category) {
-        return notFoundError(res, 'Tweet not Found!');
+        return notFoundError(res, 'not Found!');
     }
     return okResponse(res, category);
 }
@@ -82,7 +82,7 @@ module.exports = {
     createCategory,
     getCategories,
     getSubCategories,
-    getCategoryById,
+    getCategoryByParentId,
     updateCategory,
     deleteCategory,
 }

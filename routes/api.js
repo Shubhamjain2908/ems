@@ -28,7 +28,7 @@ router.put('/user', passport.authenticate('jwt', { session: false }), Auth.updat
 router.post('/category', passport.authenticate('jwt', { session: false }), Category.createCategory);
 router.get('/category', Category.getCategories);
 router.get('/subcategory', Category.getSubCategories);
-router.get('/category/:id', Category.getCategoryById);
+router.get('/subcategory/:categoryId', Category.getCategoryByParentId);
 router.put('/category/:id', passport.authenticate('jwt', { session: false }), Category.updateCategory);
 router.delete('/category/:id', passport.authenticate('jwt', { session: false }), Category.deleteCategory);
 /***********************
